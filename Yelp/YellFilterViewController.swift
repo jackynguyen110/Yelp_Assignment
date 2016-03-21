@@ -69,6 +69,23 @@ class YellFilterViewController: UIViewController, UITableViewDelegate, UITableVi
                     imageView.image = UIImage(named: "dropdown")
                     cell.accessoryView = imageView
                 }
+            case .Multiple :
+                if filter.isOpen == true || indexPath.row < filter.numItemsVisible {
+                    let filterOption = filter.options[indexPath.row]
+                    cell.textLabel?.text = filterOption.label
+                    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+                    if filterOption.selected == true {
+                        imageView.image = UIImage(named: "check")
+                        cell.accessoryView = imageView
+                    } else {
+                        imageView.image = UIImage(named: "uncheck")
+                        cell.accessoryView = imageView
+                    }
+                } else {
+                    cell.textLabel!.text = "See All"
+                    cell.textLabel!.textAlignment = NSTextAlignment.Center
+                    cell.textLabel!.textColor = .darkGrayColor()
+            }
             case .Default :
                 let filterOption = filter.options[indexPath.row]
                 cell.textLabel?.text = filterOption.label
@@ -78,8 +95,6 @@ class YellFilterViewController: UIViewController, UITableViewDelegate, UITableVi
                 switchView.onTintColor = UIColor(red: 73.0/255.0, green: 134.0/255.0, blue: 231.0/255.0, alpha: 1.0)
                 switchView.addTarget(self, action: "switchChangedValue:", forControlEvents: UIControlEvents.ValueChanged)
                 cell.accessoryView = switchView
-            default :
-                break
         }
         return cell
         
@@ -101,11 +116,14 @@ class YellFilterViewController: UIViewController, UITableViewDelegate, UITableVi
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let filter = self.model?.filters[section]
         
-        if(filter?.isOpen == true){
-            return (filter?.options.count)!
-        } else {
-            return 1
+        if filter?.isOpen == false {
+            if filter?.type == FilterType.Single {
+                return 1
+            } else {
+                return (filter?.numItemsVisible)! + 1
+            }
         }
+        return (filter?.options.count)!
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -136,7 +154,17 @@ class YellFilterViewController: UIViewController, UITableViewDelegate, UITableVi
                         print(opened)
                         self.tableview.reloadSections(NSMutableIndexSet(index: indexPath.section), withRowAnimation: .Automatic)
                     }
-                
+                case .Multiple:
+                        if !filter.isOpen && indexPath.row == filter.numItemsVisible {
+                            filter.isOpen = true
+                            self.tableview.reloadSections(NSMutableIndexSet(index: indexPath.section), withRowAnimation: .Automatic)
+                        } else {
+                            let option = filter.options[indexPath.row]
+                            option.selected = !option.selected
+                            self.tableview.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+            }
+
+            
         default: break
         }
     }

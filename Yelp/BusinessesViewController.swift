@@ -97,12 +97,14 @@ extension BusinessesViewController: UISearchBarDelegate {
         } else {
             sortBy = YelpSortMode.HighestRated
         }
-        
-        print(sortBy)
-        
+        var categoriesArr:[String]? = []
+        if let categories = parameter["category_filter"] {
+          categoriesArr = categories.characters.split{$0 == ","}.map(String.init)
+        }
+
         let deals:Bool? = (parameter["deals_filter"]!) == "1" ? true : nil
 
-        Business.searchWithTerm(term, sort: sortBy, categories: ["vietnamese"], deals: deals, radius : near_by) { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm(term, sort: sortBy, categories: categoriesArr, deals: deals, radius : near_by) { (businesses: [Business]!, error: NSError!) -> Void in
             if(businesses != nil){
                 self.businesses = businesses
                 self.tableView.reloadData()
