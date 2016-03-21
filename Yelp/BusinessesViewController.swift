@@ -73,16 +73,15 @@ extension BusinessesViewController: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.text = ""
-        searchBar.resignFirstResponder()
         performSearch(searchBar.text!)
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
         performSearch(searchBar.text!)
     }
     final func performSearch(term: String) {
         //MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        searchBar.resignFirstResponder()
         var near_by:Double?
         let parameter = YelpFilters.instance.Parameters
         if let raduis = Double(parameter["near_distance"]!){
@@ -91,13 +90,15 @@ extension BusinessesViewController: UISearchBarDelegate {
             near_by = nil
         }
         var sortBy:YelpSortMode!
-        if(parameter["sort"] == "1") {
+        if(parameter["sort_mode"] == "0") {
             sortBy = YelpSortMode.BestMatched
-        } else if (parameter["sort"] == "2") {
+        } else if (parameter["sort_mode"] == "1") {
             sortBy = YelpSortMode.Distance
         } else {
             sortBy = YelpSortMode.HighestRated
         }
+        
+        print(sortBy)
         
         let deals:Bool? = (parameter["deals_filter"]!) == "1" ? true : nil
 
