@@ -14,7 +14,7 @@ class YelpFilters {
         Filter(
             label: "Popular",
             options: [
-                Option(label: "Offering a Deal", name: "deals_filter", value: "1")
+                Option(label: "Offering a Deal", name: "deals_filter", value: "0")
             ],
             type: .Default
         ),

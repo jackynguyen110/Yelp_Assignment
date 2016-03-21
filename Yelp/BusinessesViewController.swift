@@ -61,40 +61,34 @@ extension BusinessesViewController: UITableViewDelegate, UITableViewDataSource {
 extension BusinessesViewController: UISearchBarDelegate {
     
     
-    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
-        searchActive = true;
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        searchBar.setShowsCancelButton(true, animated: true)
+        return true;
     }
     
-    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
-        searchActive = false;
+    func searchBarShouldEndEditing(searchBar: UISearchBar) -> Bool {
+        searchBar.setShowsCancelButton(false, animated: true)
+        return true;
     }
     
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
-        searchActive = false;
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        performSearch(searchBar.text!)
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        searchActive = false;
+        searchBar.resignFirstResponder()
+        performSearch(searchBar.text!)
     }
-    
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        let term = searchBar.text!
-        NSObject.cancelPreviousPerformRequestsWithTarget(self)
-        self.performSelector("performSearch:", withObject: term, afterDelay: 0.5)
-        //performSearch(searchText)
-    }
-
-    
-    
     final func performSearch(term: String) {
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
-        self.searchBar.resignFirstResponder()
-        var near_by:Double!
+        //MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        var near_by:Double?
         let parameter = YelpFilters.instance.Parameters
         if let raduis = Double(parameter["near_distance"]!){
             near_by = raduis
         } else {
-            near_by = 0
+            near_by = nil
         }
         var sortBy:YelpSortMode!
         if(parameter["sort"] == "1") {
@@ -102,16 +96,16 @@ extension BusinessesViewController: UISearchBarDelegate {
         } else if (parameter["sort"] == "2") {
             sortBy = YelpSortMode.Distance
         } else {
-            sortBy = YelpSortMode.Distance
+            sortBy = YelpSortMode.HighestRated
         }
         
         let deals:Bool? = (parameter["deals_filter"]!) == "1" ? true : nil
 
-        Business.searchWithTerm(term, sort: sortBy, categories: [], deals: deals, radius : near_by) { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm(term, sort: sortBy, categories: ["vietnamese"], deals: deals, radius : near_by) { (businesses: [Business]!, error: NSError!) -> Void in
             if(businesses != nil){
                 self.businesses = businesses
                 self.tableView.reloadData()
-                 MBProgressHUD.hideHUDForView(self.view, animated: true)
+                 //MBProgressHUD.hideHUDForView(self.view, animated: true)
             }
             
         }
